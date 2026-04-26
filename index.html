@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>小呆寶的魔法學院生日 RPG</title>
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;font-family:"Noto Serif TC","Microsoft JhengHei",serif;background:#080512;color:#f8e6bd;}
+body{display:flex;justify-content:center;align-items:flex-start;overflow-x:hidden;}
+
+.game{
+  position:relative;
+  width:min(100vw,768px);
+  min-height:100vh;
+  aspect-ratio:768/1152;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(5,3,12,.10),rgba(5,3,12,.42)),
+    url("magic-bg.jpg") center top/cover no-repeat;
+  box-shadow:0 0 50px rgba(0,0,0,.75);
+}
+.game::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 50% 25%,rgba(255,205,92,.20),transparent 22%),
+    radial-gradient(circle at 18% 30%,rgba(255,255,255,.10),transparent 16%),
+    radial-gradient(circle at 82% 28%,rgba(255,122,166,.14),transparent 18%),
+    radial-gradient(#fff6c5 1px,transparent 1.5px) 0 0/64px 64px,
+    linear-gradient(to bottom,rgba(9,5,24,.18),rgba(7,4,15,.66));
+  animation:bgTwinkle 5s infinite alternate ease-in-out;
+}
+@keyframes bgTwinkle{from{opacity:.55;}to{opacity:.85;}}
+
+.sound-panel{position:absolute;left:3.8%;top:1.8%;z-index:10;display:flex;flex-direction:column;gap:8px;}
+.sound-pill{min-width:160px;padding:9px 16px;border:2px solid #b88035;border-radius:12px;background:rgba(10,7,17,.72);color:#ffe6ad;font-weight:700;font-size:15px;box-shadow:0 0 12px rgba(255,184,82,.28), inset 0 0 12px rgba(255,210,120,.08);text-align:left;}
+
+.title-area{position:absolute;top:5.2%;left:50%;transform:translateX(-50%);z-index:10;width:84%;text-align:center;}
+.title-area .ornament{font-size:38px;color:#ffd47e;text-shadow:0 0 14px #f8b95a;line-height:.7;}
+.title{margin:0;font-size:clamp(32px,5.7vw,52px);letter-spacing:3px;color:#ffd88c;text-shadow:0 0 12px #f5a33e,0 0 28px rgba(255,159,80,.7),0 3px 0 #5b2b10;}
+.subtitle{font-size:clamp(15px,2.4vw,22px);letter-spacing:7px;color:#ffdca5;text-shadow:0 0 10px #d68d42;margin-top:8px;}
+
+.status-card{position:absolute;right:3%;top:2.2%;z-index:12;width:156px;padding:12px 13px;border:3px solid #5e3518;border-radius:10px;color:#2b1709;background:linear-gradient(#e7d1a7,#c69e6c);box-shadow:0 5px 18px rgba(0,0,0,.45),inset 0 0 18px rgba(255,255,255,.25);font-weight:800;font-size:18px;}
+.status-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(85,45,16,.35);padding:5px 0;}
+.status-row:last-child{border-bottom:none;}
+
+.quest-card{position:absolute;left:5%;right:5%;top:17.2%;z-index:11;padding:10px 16px;border:2px solid #b88035;border-radius:14px;background:rgba(19,11,31,.76);box-shadow:0 0 16px rgba(255,201,93,.25),inset 0 0 12px rgba(255,255,255,.05);color:#ffe6b0;font-weight:800;text-align:left;font-size:18px;}
+.quest-card span{color:#ffcf6b;text-shadow:0 0 8px rgba(255,208,105,.65);}
+.timer-bar{margin-top:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;display:none;}
+.timer-fill{height:100%;width:100%;background:linear-gradient(90deg,#ffe07a,#ff5d85);transition:width .2s linear;}
+
+.envelope{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:12;width:190px;height:105px;border:3px solid #b98245;background:linear-gradient(145deg,#ffe7ba,#c9965b);clip-path:polygon(0 0,100% 0,100% 100%,0 100%);box-shadow:0 0 28px rgba(255,197,91,.7),0 15px 25px rgba(0,0,0,.35);cursor:pointer;animation:glow 1.8s infinite alternate;}
+.envelope::before{content:"";position:absolute;inset:0;background:linear-gradient(35deg,transparent 49%,rgba(95,43,18,.35) 50%,transparent 51%),linear-gradient(-35deg,transparent 49%,rgba(95,43,18,.35) 50%,transparent 51%);}
+.envelope::after{content:"❤";position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);font-size:28px;color:#b82731;text-shadow:0 0 8px #fff0c4;}
+.envelope-text{position:absolute;left:50%;top:35%;transform:translateX(-50%);z-index:14;text-align:center;font-size:22px;color:#ffe9aa;text-shadow:0 0 10px #ffbd55;line-height:1.5;font-weight:800;}
+@keyframes glow{from{filter:brightness(1);transform:translate(-50%,-50%) scale(1);}to{filter:brightness(1.14);transform:translate(-50%,-50%) scale(1.035);}}
+
+.name-tag{position:absolute;top:50.5%;z-index:15;min-width:150px;padding:9px 25px;border:3px solid #c3914a;border-radius:14px;color:white;font-size:25px;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.4);box-shadow:0 0 12px rgba(255,202,102,.4),inset 0 0 12px rgba(255,255,255,.12);transition:.3s;}
+.name-left{left:10%;background:linear-gradient(90deg,#17365f,#355f9e);}
+.name-right{right:10%;background:linear-gradient(90deg,#9b244e,#d24f82);}
+.name-active{filter:brightness(1.25);box-shadow:0 0 26px rgba(255,218,118,.85),inset 0 0 12px rgba(255,255,255,.2);transform:scale(1.04);}
+
+.dialogue{
+  position:absolute;left:5.5%;right:5.5%;top:56.3%;z-index:20;
+  min-height:152px;
+  max-height:240px; /* ⭐限制高度 */
+  padding:22px 36px 24px;
+  color:#2c1b0b;text-align:left;
+  border:4px solid #6b3b18;border-radius:18px;
+  background:linear-gradient(#f0dfbd,#cda77d);
+  box-shadow:0 0 0 3px rgba(255,228,166,.35),0 10px 28px rgba(0,0,0,.45),inset 0 0 22px rgba(255,255,255,.35);
+  overflow-y:auto; /* ⭐可滑動 */
+  scrollbar-width:thin;
+}
+.dialogue::-webkit-scrollbar{width:6px;}
+.dialogue::-webkit-scrollbar-thumb{
+  background:#b47a2c;
+  border-radius:10px;
+}
+.dialogue::before,.dialogue::after{content:"❧";position:absolute;color:#704015;font-size:30px;opacity:.48;}.dialogue::before{left:12px;top:7px}.dialogue::after{right:12px;bottom:6px;transform:rotate(180deg)}
+.speaker{font-size:27px;font-weight:900;margin-bottom:8px;border-bottom:1px solid rgba(75,40,14,.35);padding-bottom:5px;}
+.dialogue-text{font-size:clamp(18px,3vw,24px);line-height:1.65;font-weight:700;min-height:72px;}
+.voice-btn{position:absolute;right:24px;top:24px;width:48px;height:48px;border-radius:50%;border:3px solid #6b3b18;background:linear-gradient(#c79b57,#8b5d24);color:#fff;font-size:24px;cursor:pointer;}
+
+.choice-title{position:absolute;top:72.7%;left:50%;transform:translateX(-50%);z-index:20;color:#ffd88c;text-shadow:0 0 8px #d58532;font-size:24px;font-weight:900;letter-spacing:4px;white-space:nowrap;}
+.choices{position:absolute;left:6%;right:6%;top:76%;z-index:20;display:flex;flex-direction:column;gap:11px;}
+.choice{position:relative;overflow:hidden;width:100%;border:none;cursor:pointer;padding:13px 24px;border-radius:14px;color:#fff4d4;font-size:clamp(16px,2.8vw,23px);font-weight:900;text-align:left;border:3px solid #bf8742;box-shadow:0 6px 16px rgba(0,0,0,.42),inset 0 0 14px rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;}
+.choice::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0 34%,rgba(255,255,255,.28) 48%,transparent 62%);transform:translateX(-115%);transition:.55s;}.choice:hover::before{transform:translateX(115%)}
+.choice.red{background:linear-gradient(90deg,#9f1d48,#d24375);}.choice.blue{background:linear-gradient(90deg,#143764,#315f9a);}.choice.purple{background:linear-gradient(90deg,#4a276a,#7e3e96);}.choice.gold{background:linear-gradient(90deg,#9b5a13,#d59a30);}
+.choice small{font-size:16px;color:#ffe9b8;white-space:nowrap;margin-left:10px;}
+.hint{position:absolute;top:88.7%;left:0;right:0;z-index:20;text-align:center;font-size:18px;color:#ffd789;text-shadow:0 0 9px #d88d38;font-weight:800;}
+
+.progress-scroll{position:absolute;left:3%;right:3%;bottom:1.5%;z-index:20;height:105px;padding:14px 12px 8px;border:4px solid #6b3b18;border-radius:12px;background:linear-gradient(#dfbe83,#b17b42);color:#2d1909;box-shadow:0 0 24px rgba(255,199,90,.35),inset 0 0 20px rgba(255,255,255,.2);display:flex;justify-content:space-between;align-items:center;gap:4px;}
+.stage{width:13.5%;text-align:center;font-size:12px;font-weight:900;opacity:.65;}.stage-icon{width:42px;height:42px;margin:0 auto 4px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #6b3b18;background:linear-gradient(#6d5233,#2a1b11);color:#d0b084;font-size:21px;box-shadow:inset 0 0 10px rgba(0,0,0,.45);}
+.stage.active{opacity:1;color:#2d1304}.stage.active .stage-icon{background:linear-gradient(#ffd06e,#a96621);color:#fff6d4;box-shadow:0 0 18px rgba(255,212,100,.9),inset 0 0 12px rgba(255,255,255,.22)}.stage.final .stage-icon{background:linear-gradient(#ff6c85,#9b1239);color:#fff;}
+
+.mini-arena{height:150px;border:3px solid #6b3b18;border-radius:14px;background:radial-gradient(circle at 50% 10%,rgba(255,216,103,.35),transparent 35%),rgba(50,25,73,.18);position:relative;overflow:hidden;margin-top:8px;}
+.wand{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:38px;}.spark{position:absolute;top:-28px;font-size:26px;}@keyframes fall{to{top:170px}}
+.rune-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}.rune{font-size:35px;justify-content:center;text-align:center;padding:12px}
+.rune-arena{
+  position:relative;
+  height:150px;
+  margin-top:10px;
+  border:3px solid #6b3b18;
+  border-radius:14px;
+  overflow:hidden;
+  background:radial-gradient(circle at 50% 15%,rgba(255,216,103,.35),transparent 35%),rgba(50,25,73,.18);
+  touch-action:manipulation;
+}
+.rune-target{
+  position:absolute;
+  width:58px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  font-size:34px;
+  cursor:pointer;
+  border:3px solid rgba(255,220,130,.75);
+  background:rgba(255,255,255,.12);
+  box-shadow:0 0 16px rgba(255,214,110,.55), inset 0 0 12px rgba(255,255,255,.14);
+  animation:runeFloat 1.8s ease-in-out infinite alternate;
+}
+.rune-target.wrong{filter:hue-rotate(180deg) brightness(.9);}
+@keyframes runeFloat{
+  from{transform:translateY(0) scale(1);}
+  to{transform:translateY(-8px) scale(1.06);}
+}.magic-text{display:inline-block;color:#78410f;text-shadow:0 0 8px rgba(255,190,70,.6);animation:magicReveal 1.8s ease forwards}@keyframes magicReveal{0%{opacity:0;filter:blur(8px);letter-spacing:8px;}100%{opacity:1;filter:blur(0);letter-spacing:1px;}}
+.flash{animation:flash .5s ease}@keyframes flash{0%{filter:brightness(1)}50%{filter:brightness(1.45)}100%{filter:brightness(1)}}.impact{position:absolute;z-index:60;top:48%;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:999px;background:rgba(0,0,0,.65);border:2px solid #ffd36b;color:#ffe59b;font-size:22px;font-weight:900;text-shadow:0 0 8px #ffbd55;animation:impact 1.15s forwards}@keyframes impact{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.08)}100%{opacity:0;transform:translate(-50%,-40px) scale(1)}}
+
+.memory-wall{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:12px;
+}
+.memory-img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:12px;
+  opacity:0;
+  transform:scale(.75) rotate(-3deg);
+  border:3px solid rgba(255,220,140,.75);
+  box-shadow:0 0 16px rgba(255,205,110,.7),0 8px 18px rgba(0,0,0,.35);
+  transition:opacity .8s ease, transform .8s ease;
+}
+.memory-img.show{
+  opacity:1;
+  transform:scale(1) rotate(0deg);
+}
+.memory-final-text{
+  margin-top:12px;
+  text-align:center;
+  font-weight:900;
+  color:#7a340f;
+  text-shadow:0 0 8px rgba(255,216,120,.85);
+}
+
+@media(max-width:520px){.status-card{width:130px;font-size:15px;right:2%}.sound-pill{min-width:128px;font-size:12px;padding:7px 10px}.quest-card{top:17.7%;font-size:15px}.title-area{top:7.2%}.envelope{width:150px;height:85px;top:42%}.envelope-text{font-size:18px;top:35%}.name-tag{font-size:20px;min-width:115px;padding:7px 18px}.dialogue{top:56%;padding:17px 22px;min-height:140px}.speaker{font-size:23px}.choice-title{top:72.7%;font-size:19px}.choices{top:76%;gap:8px}.choice{padding:10px 14px}.choice small{font-size:12px}.hint{top:88.8%;font-size:15px}.progress-scroll{height:92px;padding:11px 8px 6px}.stage{font-size:10px}.stage-icon{width:34px;height:34px;font-size:17px}}
+</style>
+</head>
+<body>
+<div class="game" id="game">
+  <div class="sound-panel"><div class="sound-pill">♪ 背景音樂 <span id="musicState">未啟動</span></div><div class="sound-pill">🎮 RPG 模式</div></div>
+  <div class="status-card"><div class="status-row"><span>關卡</span><span id="levelText">1 / 7</span></div><div class="status-row"><span>好感度</span><span>💖 <b id="loveText">0</b></span></div><div class="status-row"><span>拼圖</span><span><b id="puzzleText">0</b> / 6</span></div><div class="status-row"><span>魔力</span><span>✨ <b id="manaText">3</b></span></div></div>
+  <div class="quest-card">目前任務：<span id="questText">點擊信封，開啟魔法生日試煉</span><div class="timer-bar" id="timerBar"><div class="timer-fill" id="timerFill"></div></div></div>
+  <div class="title-area"><div class="ornament">⌁ ♡ ⌁</div><h1 class="title">魔法學院的秘密邀請</h1><div class="subtitle">尋找屬於妳的魔法愛情</div></div>
+  <div class="envelope-text" id="centerText">點擊信封<br>開啟魔法之旅</div><div class="envelope" id="envelope" onclick="startGame()"></div>
+  <div class="name-tag name-left" id="tagBoy">瓜寶</div><div class="name-tag name-right" id="tagGirl">小呆寶</div>
+  <div class="dialogue"><button class="voice-btn" onclick="toggleMusic()">🔊</button><div class="speaker" id="speaker">小呆寶</div><div class="dialogue-text" id="dialogueText">瓜瓜~瓜寶~，今天是我生日嗎？你準備了什麼驚喜給我呢？<br>好期待喔～</div></div>
+  <div class="choice-title" id="choiceTitle">⌁ 請選擇你的回應 ⌁</div><div class="choices" id="choices"><button class="choice red" onclick="startGame()"><span>💗 開始魔法生日 RPG</span><small>Start</small></button></div>
+  <div class="hint" id="hint">✦ 有限時任務、試煉與隱藏結局 ✦</div>
+  <div class="progress-scroll" id="progressScroll">
+    <div class="stage active"><div class="stage-icon">🦉</div><div>第一章<br>魔法信件</div></div><div class="stage"><div class="stage-icon">🔒</div><div>第二章<br>列車抉擇</div></div><div class="stage"><div class="stage-icon">🔒</div><div>第三章<br>記憶試煉</div></div><div class="stage"><div class="stage-icon">🔒</div><div>第四章<br>符文試煉</div></div><div class="stage"><div class="stage-icon">🔒</div><div>第五章<br>光點挑戰</div></div><div class="stage"><div class="stage-icon">🔒</div><div>第六章<br>拼圖密室</div></div><div class="stage final"><div class="stage-icon">🎁</div><div>第七章<br>結局</div></div>
+  </div>
+</div>
+<audio id="bgm" loop src="bgm.mp3"></audio><audio id="gameMusic" loop src="game.mp3"></audio><audio id="loveMusic" loop src="love.mp3"></audio><audio id="clickSound" src="click.mp3"></audio><audio id="magicSound" src="magic.mp3"></audio><audio id="trainSound" src="train.mp3"></audio><audio id="birdSound" src="bird.mp3"></audio>
+<audio id="keyboardSound" src="keyboard.mp3"></audio>
+<script>
+let level=1,love=0,puzzle=0,mana=3,started=false,birdPlayed=false,miniCatch=0,wandX=50,miniTimer=null,countdown=null,locked=false;
+const $=id=>document.getElementById(id);const bgm=$('bgm'),gameMusic=$('gameMusic'),loveMusic=$('loveMusic'),clickSound=$('clickSound'),magicSound=$('magicSound'),trainSound=$('trainSound'),birdSound=$('birdSound'),keyboardSound=$('keyboardSound');
+function unlockAudio(){if(started)return;started=true;$('musicState').textContent='已啟動';[clickSound,magicSound,trainSound,birdSound,keyboardSound].forEach(a=>{a.volume=0;a.play().then(()=>{a.pause();a.currentTime=0;a.volume=.55}).catch(()=>{})});playMusic(bgm,.42)}
+function playMusic(target,max=.4){[bgm,gameMusic,loveMusic].forEach(a=>{if(a!==target){a.pause();a.currentTime=0}});target.volume=max;target.play().catch(()=>{})}
+function sfx(a,v=.55){if(!started)return;a.pause();a.currentTime=0;a.volume=v;a.play().catch(()=>{})}
+function toggleMusic(){unlockAudio();if(bgm.paused&&gameMusic.paused&&loveMusic.paused){playMusic(level>=7?loveMusic:level>=4?gameMusic:bgm,.38);$('musicState').textContent='已啟動'}else{[bgm,gameMusic,loveMusic].forEach(a=>a.pause());$('musicState').textContent='暫停中'}}
+function startGame(){if(locked)return;unlockAudio();if(!birdPlayed){sfx(birdSound,.75);birdPlayed=true}sfx(magicSound);$('envelope').style.display='none';$('centerText').style.display='none';level=1;renderIntro()}
+function update(){ $('levelText').textContent=level+' / 7';$('loveText').textContent=love;$('puzzleText').textContent=puzzle;$('manaText').textContent=mana;document.querySelectorAll('.stage').forEach((el,i)=>{if(i<level){el.classList.add('active');const icons=['🦉','🚂','📜','🪄','✨','🧩','🎁'];el.querySelector('.stage-icon').textContent=icons[i]}})}
+function speak(who,text,opts,title='⌁ 請選擇你的回應 ⌁'){
+  $('choices').style.display='flex';
+  clearCountdown();
+  $('speaker').textContent=who;
+  $('choiceTitle').textContent=title;
+  $('choices').innerHTML='';
+
+  typeWriter(text,()=>{
+    // 滑到底才顯示選項
+    const box=document.querySelector('.dialogue');
+    box.scrollTop=0;
+    box.addEventListener('scroll',checkScroll);
+
+    function checkScroll(){
+      if(box.scrollTop + box.clientHeight >= box.scrollHeight - 5){
+        box.removeEventListener('scroll',checkScroll);
+        $('choices').innerHTML=opts;
+      }
+    }
+
+    // 如果內容本來就不需要滑
+    if(box.scrollHeight <= box.clientHeight){
+      $('choices').innerHTML=opts;
+    }
+  });
+
+  $('tagBoy').classList.toggle('name-active',who==='瓜寶');
+  $('tagGirl').classList.toggle('name-active',who==='小呆寶');
+  update();
+  flash();
+}
+
+// 打字機效果
+function typeWriter(html,callback){
+  const el=$('dialogueText');
+  el.innerHTML='';
+
+  let i=0;
+  const speed=45; // 調慢打字速度（數字越大越慢） // 打字速度，數字越小越快
+
+  const temp=document.createElement('div');
+  temp.innerHTML=html;
+  const text=temp.innerText;
+
+  // 打字機音效：文字逐字出現時播放，打完停止
+  if(started && keyboardSound){
+    keyboardSound.pause();
+    keyboardSound.currentTime=0;
+    keyboardSound.volume=0.28;
+    keyboardSound.loop=true;
+    keyboardSound.play().catch(()=>{});
+  }
+
+  function typing(){
+    if(i<text.length){
+      el.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing,speed);
+    }else{
+      if(keyboardSound){
+        keyboardSound.pause();
+        keyboardSound.currentTime=0;
+        keyboardSound.loop=false;
+      }
+      el.innerHTML=html; // 打完後還原 HTML，保留魔法文字特效
+      if(callback) callback();
+    }
+  }
+  typing();
+}
+function choiceBtn(cls,text,small,fn){return `<button class="choice ${cls}" onclick="${fn}"><span>${text}</span><small>${small}</small></button>`}
+function gain(l=0,p=0,m=0,msg=''){love+=l;puzzle=Math.min(6,puzzle+p);mana=Math.max(0,mana+m);if(msg)impact(msg);update()}
+function impact(t){const d=document.createElement('div');d.className='impact';d.textContent=t;$('game').appendChild(d);setTimeout(()=>d.remove(),1150)}
+function flash(){const g=$('game');g.classList.remove('flash');void g.offsetWidth;g.classList.add('flash')}
+function setQuest(t){$('questText').textContent=t}
+function clearCountdown(){clearInterval(countdown);$('timerBar').style.display='none';$('timerFill').style.width='100%';locked=false}
+function startCountdown(sec,failFn){let left=sec;$('timerBar').style.display='block';$('timerFill').style.width='100%';clearInterval(countdown);countdown=setInterval(()=>{left-=.1;$('timerFill').style.width=Math.max(0,(left/sec)*100)+'%';if(left<=0){clearCountdown();impact('時間到！魔力 -1');mana=Math.max(0,mana-1);update();failFn()}},100)}
+function renderIntro(){setQuest('任務：選擇進入魔法學院的方式');speak('小呆寶','瓜寶，這封信真的會發光欸……',choiceBtn('red','💗 牽著妳走進魔法學院','好感 +2','introChoose(2)')+choiceBtn('blue','✨ 先保密，妳等等就知道','好感 +1','introChoose(1)')+choiceBtn('purple','🌙 也許是很大的驚喜','魔力 +1','introChoose(0)'))}
+function introChoose(v){sfx(clickSound);if(v===2)gain(2,1,0,'好感 +2，拼圖 +1');else if(v===1)gain(1,1,0,'好感 +1，拼圖 +1');else gain(0,1,1,'魔力 +1，拼圖 +1');level=2;trainChapter()}
+function trainChapter(){sfx(trainSound,.68);setQuest('限時任務：5秒內選擇列車座位');speak('瓜寶','魔法列車開來了。<br>小呆寶，快選一個座位，選太慢列車會開走。',choiceBtn('red','🚂 站在門口等瓜寶牽我','好感 +2','trainChoose(2)')+choiceBtn('blue','🧁 去美食車廂收集線索','拼圖 +2','trainChoose(1)')+choiceBtn('purple','😳 站在門口等瓜寶牽我','好感 +1','trainChoose(0)'),'⌁ 限時選擇 ⌁');startCountdown(5,()=>{trainChoose(-1)})}
+function trainChoose(v){clearCountdown();sfx(clickSound);playMusic(gameMusic,.35);if(v===2)gain(2,1,0,'好感 +2，拼圖 +1');else if(v===1)gain(1,2,0,'拼圖 +2');else if(v===0)gain(1,1,0,'好感 +1');else gain(0,0,-1,'錯過列車，魔力 -1');level=3;memoryChapter()}
+function memoryChapter(){setQuest('記憶試煉：答對才可獲得拼圖碎片');speak('瓜寶','記憶試煉開始。<br>請問瓜寶這趟魔法冒險最想傳達的是什麼？',choiceBtn('blue','🧩 想和小呆寶一步一步走到未來','正解 +3','memoryAnswer(1)')+choiceBtn('purple','🍰 想讓小呆寶吃很多美食','普通 +1','memoryAnswer(0)')+choiceBtn('red','😆 想證明自己很會寫程式','錯誤','memoryAnswer(-1)'),'⌁ 記憶試煉 ⌁')}
+function memoryAnswer(v){sfx(clickSound);if(v===1)gain(3,1,0,'答對！好感 +3，拼圖 +1');else if(v===0)gain(1,0,0,'可愛但不是重點，好感 +1');else gain(0,0,-1,'答錯，魔力 -1');level=4;runeChapter()}
+function runeChapter(){
+  clearCountdown();
+  setQuest('符文試煉：在符文陣中點擊代表真心的符文');
+
+  // 小遊戲期間：完全移除下方選項區，不殘留上一頁選項
+  $('choiceTitle').textContent='';
+  $('choices').innerHTML='';
+  $('choices').style.display='none';
+
+  $('speaker').textContent='小呆寶';
+  $('dialogueText').innerHTML='牆上的魔法字慢慢浮現：<br><span class="magic-text">真正的禮物，不是買來的，是被用心準備出來的。</span><br>請在符文陣中點擊代表「真心」的符文。<div class="rune-arena" id="runeArena"><div class="rune-target wrong" style="left:12%;top:48%;" onclick="runeAnswer(0)">🌙</div><div class="rune-target" style="left:43%;top:22%;" onclick="runeAnswer(1)">💖</div><div class="rune-target wrong" style="left:72%;top:50%;" onclick="runeAnswer(0)">⚡</div></div>';
+
+  $('tagGirl').classList.add('name-active');
+  $('tagBoy').classList.remove('name-active');
+  update();
+  flash();
+}
+
+function runeAnswer(ok){
+  if(locked)return;
+  locked=true;
+  sfx(clickSound);
+
+  if(ok){
+    sfx(magicSound);
+    gain(2,1,1,'符文正確！好感 +2，拼圖 +1，魔力 +1');
+  }else{
+    love=Math.max(0,love-2);
+    mana=Math.max(0,mana-1);
+    impact('符文錯誤！好感 -2，魔力 -1');
+    update();
+  }
+
+  setTimeout(()=>{
+    level=5;
+    locked=false;
+    miniChapter();
+  },800);
+}
+
+function miniChapter(){
+  clearCountdown();
+  setQuest('魔法光點挑戰：接住 5 顆光點才可通過');
+
+  // 小遊戲期間：完全移除下方選項區，不殘留上一頁選項
+  $('choiceTitle').textContent='';
+  $('choices').innerHTML='';
+  $('choices').style.display='none';
+
+  $('speaker').textContent='瓜寶';
+  $('dialogueText').innerHTML='最後一個實戰試煉開始。<br>移動魔杖接住 5 顆光點，完成生日咒語。<div class="mini-arena" id="arena"><div class="wand" id="wand">🪄</div></div>';
+
+  $('tagBoy').classList.add('name-active');
+  $('tagGirl').classList.remove('name-active');
+
+  miniCatch=0;
+  wandX=50;
+
+  update();
+  flash();
+  enableArenaControl();
+
+  clearInterval(miniTimer);
+  miniTimer=setInterval(dropSpark,650);
+}
+
+function moveWand(step){wandX=Math.max(8,Math.min(92,wandX+step));const w=$('wand');if(w)w.style.left=wandX+'%'}
+
+function setWandByPosition(clientX){
+  const arena=$('arena');
+  if(!arena)return;
+  const rect=arena.getBoundingClientRect();
+  const percent=((clientX-rect.left)/rect.width)*100;
+  wandX=Math.max(8,Math.min(92,percent));
+  const w=$('wand');
+  if(w)w.style.left=wandX+'%';
+}
+
+function enableArenaControl(){
+  const arena=$('arena');
+  if(!arena)return;
+  arena.addEventListener('click',e=>setWandByPosition(e.clientX));
+  arena.addEventListener('touchstart',e=>{
+    if(e.touches[0])setWandByPosition(e.touches[0].clientX);
+  },{passive:true});
+  arena.addEventListener('touchmove',e=>{
+    if(e.touches[0])setWandByPosition(e.touches[0].clientX);
+  },{passive:true});
+}
+document.addEventListener('keydown',e=>{if(level===5){if(e.key==='ArrowLeft')moveWand(-8);if(e.key==='ArrowRight')moveWand(8)}})
+function dropSpark(){
+  const arena=$('arena');
+  if(!arena)return;
+
+  const sp=document.createElement('div');
+  sp.className='spark';
+  sp.textContent=Math.random()>.5?'✨':'⭐';
+
+  const x=Math.floor(Math.random()*86)+5;
+  sp.style.left=x+'%';
+  sp.style.top='-28px';
+  arena.appendChild(sp);
+
+  let y=-28;
+  const fall=setInterval(()=>{
+    y+=5;
+    sp.style.top=y+'px';
+
+    const sparkX=x;
+    const sparkY=y;
+    const wandY=112;
+
+    const diffX=Math.abs(sparkX-wandX);
+    const diffY=Math.abs(sparkY-wandY);
+
+    // 只有光點真的靠近魔杖時才算接到
+    if(diffX<10 && diffY<22){
+      clearInterval(fall);
+      sp.remove();
+
+      miniCatch++;
+      sfx(magicSound,.5);
+      impact('光點 '+miniCatch+' / 5');
+
+      if(miniCatch>=5){
+        clearInterval(miniTimer);
+        gain(2,1,1,'挑戰成功！好感 +2');
+        level=6;
+        puzzleChapter();
+      }
+      return;
+    }
+
+    // 掉到底沒接到就消失，不加分
+    if(y>160){
+      clearInterval(fall);
+      sp.remove();
+    }
+  },40);
+}
+
+function puzzleChapter(){
+  $('choices').style.display='flex';setQuest('拼圖密室：根據目前收集數量決定能否開啟完美結局');speak('瓜寶','拼圖密室打開了。<br>桌上出現一盒哈利波特拼圖。妳目前收集到 <b>'+puzzle+'</b> / 6 片碎片。<br>最後一片，要由妳親手放上去。',choiceBtn('red','🧩 放上最後一片拼圖','結算','finalChoice()')+
+    choiceBtn('blue','💌 先聽瓜寶說一句話','好感 +1','extraTalk()')+
+    choiceBtn('purple','😳 小呆寶害羞但願意收下','好感 +1','shyAccept()'),'⌁ 最終選擇 ⌁')}
+function extraTalk(){sfx(clickSound);gain(1,0,0,'好感 +1');speak('瓜寶','小呆寶，這不是普通的拼圖。<br>這是瓜寶想跟妳一起慢慢完成的魔法回憶。',choiceBtn('red','🧩 放上最後一片拼圖','結算','finalChoice()'),'⌁ 最終選擇 ⌁')}
+function shyAccept(){
+  sfx(clickSound);
+  gain(1,0,0,'好感 +1');
+  speak(
+    '小呆寶',
+    '……好啦，那我就先收下這份魔法。<br>可是瓜寶之後要陪我一起把拼圖完成喔。',
+    choiceBtn('red','🧩 放上最後一片拼圖','結算','finalChoice()'),
+    '⌁ 最終選擇 ⌁'
+  )
+}
+
+function finalChoice(){sfx(magicSound);puzzle=6;level=7;ending()}
+function ending(){setQuest('結局解鎖：依好感度與魔力判定');playMusic(loveMusic,.32);update();let endingTitle='',text='',cls='red';if(love>=11&&mana>=3){
+    endingTitle='隱藏完美結局';
+    speak(
+      '瓜寶',
+      '魔法學院的鐘聲響起，拼圖散發金色光芒。<br>'+
+      '小呆寶，生日快樂。<br><br>'+
+      '這盒拼圖，不只是禮物。<br>'+
+      '是瓜寶想和妳一起拼出來的回憶。❤️<br><br>'+
+      '<div class="memory-wall" id="memoryWall"></div>'+
+      '<div class="memory-final-text" id="memoryFinalText"></div>',
+      choiceBtn('red','🎁 再玩一次，挑戰更好結局','Restart','restart()'),
+      '⌁ 隱藏完美結局 ⌁'
+    );
+    showMemoryWall();
+    return;
+  }else if(love>=8){endingTitle='完美結局';text='拼圖完成了，魔法大廳亮起溫柔的光。<br>小呆寶，生日快樂。瓜寶很喜歡妳，也很認真在喜歡妳。❤️'}else{text='魔法旅程完成了，雖然還有一些心意沒有完全說出口，但瓜寶準備的哈利波特拼圖，還是想和小呆寶一起完成。生日快樂。';endingTitle='普通結局';cls='blue'}speak('瓜寶',endingTitle+'：<br>'+text,choiceBtn(cls,'🎁 再玩一次，挑戰更好結局','Restart','restart()'),'⌁ '+endingTitle+' ⌁')}
+function showMemoryWall(){
+  const photos=['memory1.jpg','memory2.jpg','memory3.jpg','memory4.jpg','memory5.jpg','memory6.jpg'];
+  let i=0;
+
+  function waitForWall(){
+    const wall=document.getElementById('memoryWall');
+    if(!wall){
+      setTimeout(waitForWall,300);
+      return;
+    }
+
+    function showNext(){
+      if(i>=photos.length){
+        const finalText=document.getElementById('memoryFinalText');
+        if(finalText){
+          finalText.innerHTML='這些回憶，瓜寶想繼續和小呆寶一起收藏下去。';
+        }
+        return;
+      }
+
+      const img=document.createElement('img');
+      img.src=photos[i];
+      img.className='memory-img';
+      wall.appendChild(img);
+
+      setTimeout(()=>img.classList.add('show'),120);
+      i++;
+      setTimeout(showNext,800);
+    }
+
+    setTimeout(showNext,700);
+  }
+
+  waitForWall();
+}
+
+function restart(){
+  $('choices').style.display='flex';
+  $('choiceTitle').textContent='⌁ 請選擇你的回應 ⌁';
+  locked=false;clearInterval(miniTimer);clearCountdown();level=1;love=0;puzzle=0;mana=3;birdPlayed=false;$('envelope').style.display='block';$('centerText').style.display='block';$('questText').textContent='點擊信封，開啟魔法生日試煉';document.querySelectorAll('.stage').forEach((el,i)=>{el.classList.toggle('active',i===0);el.querySelector('.stage-icon').textContent=i===0?'🦉':i===6?'🎁':'🔒'});playMusic(bgm,.42);renderIntro()}
+</script>
+</body>
+</html>
