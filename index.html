@@ -225,7 +225,7 @@ function typeWriter(html,callback){
   el.innerHTML='';
 
   let i=0;
-  const speed=45; // 調慢打字速度（數字越大越慢） // 打字速度，數字越小越快
+  const speed=100; // 調慢打字速度（數字越大越慢） // 打字速度，數字越小越快
 
   const temp=document.createElement('div');
   temp.innerHTML=html;
@@ -266,7 +266,7 @@ function clearCountdown(){clearInterval(countdown);$('timerBar').style.display='
 function startCountdown(sec,failFn){let left=sec;$('timerBar').style.display='block';$('timerFill').style.width='100%';clearInterval(countdown);countdown=setInterval(()=>{left-=.1;$('timerFill').style.width=Math.max(0,(left/sec)*100)+'%';if(left<=0){clearCountdown();impact('時間到！魔力 -1');mana=Math.max(0,mana-1);update();failFn()}},100)}
 function renderIntro(){setQuest('任務：選擇進入魔法學院的方式');speak('小呆寶','瓜寶，這封信真的會發光欸……',choiceBtn('red','💗 牽著妳走進魔法學院','好感 +2','introChoose(2)')+choiceBtn('blue','✨ 先保密，妳等等就知道','好感 +1','introChoose(1)')+choiceBtn('purple','🌙 也許是很大的驚喜','魔力 +1','introChoose(0)'))}
 function introChoose(v){sfx(clickSound);if(v===2)gain(2,1,0,'好感 +2，拼圖 +1');else if(v===1)gain(1,1,0,'好感 +1，拼圖 +1');else gain(0,1,1,'魔力 +1，拼圖 +1');level=2;trainChapter()}
-function trainChapter(){sfx(trainSound,.68);setQuest('限時任務：5秒內選擇列車座位');speak('瓜寶','魔法列車開來了。<br>小呆寶，快選一個座位，選太慢列車會開走。',choiceBtn('red','🚂 站在門口等瓜寶牽我','好感 +2','trainChoose(2)')+choiceBtn('blue','🧁 去美食車廂收集線索','拼圖 +2','trainChoose(1)')+choiceBtn('purple','😳 站在門口等瓜寶牽我','好感 +1','trainChoose(0)'),'⌁ 限時選擇 ⌁');startCountdown(5,()=>{trainChoose(-1)})}
+function trainChapter(){sfx(trainSound,.68);setQuest('限時任務：5秒內選擇列車座位');speak('瓜寶','魔法列車開來了。<br>小呆寶，快選一個座位，選太慢列車會開走。',choiceBtn('red','🚂 站在門口等瓜寶牽我','好感 +2','trainChoose(2)')+choiceBtn('blue','🧁 去美食車廂收集線索','拼圖 +2','trainChoose(1)')+choiceBtn('purple','😳 自己默默地走進去選座位','好感 +1','trainChoose(0)'),'⌁ 限時選擇 ⌁');startCountdown(5,()=>{trainChoose(-1)})}
 function trainChoose(v){clearCountdown();sfx(clickSound);playMusic(gameMusic,.35);if(v===2)gain(2,1,0,'好感 +2，拼圖 +1');else if(v===1)gain(1,2,0,'拼圖 +2');else if(v===0)gain(1,1,0,'好感 +1');else gain(0,0,-1,'錯過列車，魔力 -1');level=3;memoryChapter()}
 function memoryChapter(){setQuest('記憶試煉：答對才可獲得拼圖碎片');speak('瓜寶','記憶試煉開始。<br>請問瓜寶這趟魔法冒險最想傳達的是什麼？',choiceBtn('blue','🧩 想和小呆寶一步一步走到未來','正解 +3','memoryAnswer(1)')+choiceBtn('purple','🍰 想讓小呆寶吃很多美食','普通 +1','memoryAnswer(0)')+choiceBtn('red','😆 想證明自己很會寫程式','錯誤','memoryAnswer(-1)'),'⌁ 記憶試煉 ⌁')}
 function memoryAnswer(v){sfx(clickSound);if(v===1)gain(3,1,0,'答對！好感 +3，拼圖 +1');else if(v===0)gain(1,0,0,'可愛但不是重點，好感 +1');else gain(0,0,-1,'答錯，魔力 -1');level=4;runeChapter()}
